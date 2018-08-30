@@ -37,13 +37,14 @@ module.exports = {
             db.collection('users').find(req.body.details).toArray((err, result) => {
                 // console.log(result);
                 let userDetails = Object.assign({},req.body.details,{_id : new ObjectID()});
-                console.log(userDetails);
                 if(result && result.length === 0) {
                     db.collection('users').insertOne(userDetails, (err, result) => {
                         const response = result.toJSON();
                         // console.log(response);
+                        // console.log(userDetails);
+                        delete userDetails.password;
                         if(err) responseData = {userInserted: false}
-                        else if(response.ok === 1) responseData = {userInserted: true}
+                        else if(response.ok === 1) responseData = Object.assign(userDetails,{userInserted: true});
                         else if(response.ok !== 1) responseData = {userInserted: false}
                         // console.log(responseData);
                         res.json(responseData);
