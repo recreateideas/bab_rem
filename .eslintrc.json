@@ -1,0 +1,33 @@
+{
+    "parser": "babel-eslint",
+    "parserOptions": {
+        "ecmaVersion": 6,
+        "sourceType": "script",
+        "ecmaFeatures": {
+            "jsx": true,
+            "experimentalObjectRestSpread": true
+        }
+    },
+    "rules": {
+        "semi": ["error", "always"]
+    },
+    "extends": [
+        "airbnb",
+        "eslint:recommended",
+        "./index.js"
+    ],
+    "env": {
+        "commonjs":true,
+        "browser": true,
+        "node": true,
+        "jquery": true,
+        "es6": true,
+        "mongo": true
+    },
+    "settings": {
+        "react": {
+            "pragma": "React",
+            "version": "15.6.1"
+        }
+    }
+}
