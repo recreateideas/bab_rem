@@ -12,6 +12,8 @@ module.exports = (app) =>{
 
     app.post('/users/login', /*queryValidator,*/ users.loginUser);
 
+    app.post('/users/update', /*queryValidator,*/ users.updateUser);
+
     app.post('/users/register', /*queryValidator,*/ users.registerUser);
 
     //add more!.. like delete('/mongo/:id',query.delete); 
