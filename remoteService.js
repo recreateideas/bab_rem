@@ -1,3 +1,5 @@
+"use strict";
+
 const express =require('express');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
@@ -5,7 +7,7 @@ const { errors } = require('celebrate');
 const { connectToDB }= require('./controllers/mongoUtil');
 
 require('dotenv').config();
-require('./socketIO');
+require('./socketUtils/socketIO');
 connectToDB(()=>{
     console.log('connected');
 });
