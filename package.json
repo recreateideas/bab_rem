@@ -10,7 +10,7 @@
     "start": "concurrently \"nodemon remoteService.js\" \"mongod --dbpath ~/mongodb2 --port 27018\"",
     "build-js": "react-scripts build",
     "eject": "react-scripts eject",
-    "test":""
+    "test": ""
   },
   "author": "recreateideas",
   "license": "ISC",
@@ -23,7 +23,8 @@
     "jsrsasign-util": "^1.0.0",
     "mongodb": "^3.1.4",
     "mongodb-query-parser": "^1.2.1",
-    "nodemon": "^1.18.3"
+    "nodemon": "^1.18.3",
+    "socket.io": "^2.1.1"
   },
   "proxy": "http://localhost:8001"
 }

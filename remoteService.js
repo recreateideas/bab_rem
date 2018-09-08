@@ -5,7 +5,7 @@ const { errors } = require('celebrate');
 const { connectToDB }= require('./controllers/mongoUtil');
 
 require('dotenv').config();
-
+require('./socketIO');
 connectToDB(()=>{
     console.log('connected');
 });
@@ -25,4 +25,4 @@ require('./routes')(app_remote);
 app_remote.use(errors());
 app_remote.listen(port);
 
-console.log(`Listening on ${process.env.REMOTE_HOST} port: ${port}`);
+console.log(`#-- Server Listening on ${process.env.REMOTE_HOST} port: ${port}`);
