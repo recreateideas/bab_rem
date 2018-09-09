@@ -17,10 +17,15 @@ io.on('connection', (client) => {
         emitAllUsers();
     });
 
+    client.on('thisUserIsTyping', ({customId,nickname}) =>{
+        console.log(`${nickname} is typing....`);
+        io.emit('otherUserIsTyping',{nickname});
+    });
+
     client.on('disconnect', () => {
         console.log('disconnect');
         removeActiveClientFromList(client);
-        client.disconnect(true);
+        // client.disconnect(true);
         emitAllUsers();
     });
 
