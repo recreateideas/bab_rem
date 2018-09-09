@@ -20,7 +20,7 @@ io.on('connection', (client) => {
     client.on('disconnect', () => {
         console.log('disconnect');
         removeActiveClientFromList(client);
-        client.disconnect(2);
+        client.disconnect(true);
         emitAllUsers();
     });
 

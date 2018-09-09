@@ -6,7 +6,7 @@ const searchActiveClientByCustomId = newClient => {
         if (client.customId === newClient.customId) {
             found = client;
             foundIndex = index;
-            console.log('foundIndex_top',foundIndex);
+            // console.log('foundIndex_top',foundIndex);
         }
     });
     return {
@@ -37,7 +37,7 @@ module.exports = {
         }
         const { foundIndex } = searchActiveClientByCustomId(newClient);
         if(foundIndex !== null) {
-            console.log('foundIndex',foundIndex);
+            // console.log('foundIndex',foundIndex);
             updateActiveClient(foundIndex, newClient) 
         }
         else {
