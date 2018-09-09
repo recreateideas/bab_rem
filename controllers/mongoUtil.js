@@ -11,8 +11,8 @@ let _db, _dbName, _mongoClient, _mongoPort, _hostName;
 
 module.exports = {
 
-    connectToDB: (callback) => {
-        _dbName = 'users';
+    connectToDB: (collection,callback) => {
+        _dbName = collection;
         _hostName = process.env.REMOTE_HOST_NAME;
         _mongoPort = process.env.REMOTE_MONGO_PORT;
         const remoteMongoInstance = process.env.REMOTE_MONGO_INSTANCE;
@@ -39,9 +39,9 @@ module.exports = {
         return _hostName;
     },
 
-    getDBName: () => {
-        return _dbName;
-    }
+    // getDBName: () => {
+    //     return _dbName;
+    // }
 };
 
 const mongoConnect = (server,mongoUrl,callback) => {
@@ -52,6 +52,7 @@ const mongoConnect = (server,mongoUrl,callback) => {
             if (client) {
                 _db = client.db(_dbName);
                 _mongoClient = client;
+                // console.log(_db);
                 console.log(`Connected to db...${mongoUrl}`);
                 // return callback(err);
             }

@@ -16,5 +16,6 @@ module.exports = (app) =>{
 
     app.post('/users/register', /*queryValidator,*/ users.registerUser);
 
+    app.get('/users/find/:type', users.findUsers);
     //add more!.. like delete('/mongo/:id',query.delete); 
 };

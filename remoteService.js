@@ -7,10 +7,13 @@ const { errors } = require('celebrate');
 const { connectToDB }= require('./controllers/mongoUtil');
 
 require('dotenv').config();
+
 require('./socketUtils/socketIO');
-connectToDB(()=>{
+
+connectToDB('users',()=>{
     console.log('connected');
 });
+
 
 const port = process.env.REMOTE_PORT || 8001;
 

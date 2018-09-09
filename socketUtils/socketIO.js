@@ -10,19 +10,17 @@ io.on('connection', (client) => {
     client.on('updateClientInfo', data => {
         console.log(data);
         updateActiveClientInfo(client, data);
-        // const list = getAllClientList();
-        // console.log('Active Clients List: ');
-        // console.log(list);
-        // io.emit('receiveAllUsers',list);
         emitAllUsers();
     });
 
-    client.on('getAllUsers', () => {
+    client.on('getActiveUsers', () => {
         emitAllUsers();
     });
 
     client.on('disconnect', () => {
+        console.log('disconnect');
         removeActiveClientFromList(client);
+        client.disconnect(2);
         emitAllUsers();
     });
 
@@ -30,7 +28,7 @@ io.on('connection', (client) => {
 
 const emitAllUsers = () => {
     const list = getAllClientList();
-    io.emit('receiveAllUsers',list);
+    io.emit('receiveActiveUsers',list);
 };
 
 const socket_port = process.env.SOCKET_PORT || 8011;
