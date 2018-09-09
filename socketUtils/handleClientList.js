@@ -6,6 +6,7 @@ const searchActiveClientByCustomId = newClient => {
         if (client.customId === newClient.customId) {
             found = client;
             foundIndex = index;
+            console.log('foundIndex_top',foundIndex);
         }
     });
     return {
@@ -16,6 +17,7 @@ const searchActiveClientByCustomId = newClient => {
 
 const updateActiveClient = (index, newClient) => {
     clientsList[index].socketId = newClient.socketId;
+    clientsList[index].nickname = newClient.nickname;
     console.log(`Client updated: ${newClient.customId}, ${clientsList[index].socketId}`);
     return clientsList[index];
 }
@@ -31,9 +33,11 @@ module.exports = {
         let newClient = {
             customId: data.customId,
             socketId: client.id,
+            nickname: data.nickname
         }
         const { foundIndex } = searchActiveClientByCustomId(newClient);
-        if(foundIndex) {
+        if(foundIndex !== null) {
+            console.log('foundIndex',foundIndex);
             updateActiveClient(foundIndex, newClient) 
         }
         else {
@@ -49,7 +53,9 @@ module.exports = {
         console.log(clientsList);
     },
 
-    getActiveClientList: () => {
+    findSocketId: () => {},
+
+    getAllClientList: () => {
         return clientsList;
     }
 }
