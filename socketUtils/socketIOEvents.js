@@ -1,12 +1,15 @@
 "use strict";
 
 require('dotenv').config();
-const { updateActiveClientInfo, removeActiveClientFromList, getAllClientList} = require('./handleClientList');
+const { updateActiveClientInfo, removeActiveClientFromList, getActiveClientList } = require('./handleClientList');
+const { sendMessageToUser,otherUserIsTyping } = require('./messageCenter');
+
 const io = require('socket.io')();
 
 io.on('connection', (client) => {
     console.log('a user connected');
     emitAllUsers();
+    console.log(io.clients);
     client.on('updateClientInfo', data => {
         console.log(data);
         updateActiveClientInfo(client, data);
@@ -17,22 +20,29 @@ io.on('connection', (client) => {
         emitAllUsers();
     });
 
-    client.on('thisUserIsTyping', ({customId,nickname}) =>{
-        console.log(`${nickname} is typing....`);
-        io.emit('otherUserIsTyping',{nickname});
+    client.on('thisUserIsTyping', data =>{
+        // console.log(`${nickname} is typing....`);
+        // io.emit('otherUserIsTyping',{nickname});
+        // otherUserIsTyping({customId,nickname});
+        console.log(data);
+        sendMessageToUser(io, 'otherUserIsTyping', data);
+    });
+
+    client.on('sendMessageToClient', data =>{
+        sendMessageToUser(io, 'incomingMessage', data);
     });
 
     client.on('disconnect', () => {
         console.log('disconnect');
         removeActiveClientFromList(client);
-        // client.disconnect(true);
+        client.disconnect(true);
         emitAllUsers();
     });
 
 });
 
 const emitAllUsers = () => {
-    const list = getAllClientList();
+    const list = getActiveClientList();
     io.emit('receiveActiveUsers',list);
 };
 

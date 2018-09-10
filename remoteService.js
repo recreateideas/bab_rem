@@ -8,7 +8,7 @@ const { connectToDB }= require('./controllers/mongoUtil');
 
 require('dotenv').config();
 
-require('./socketUtils/socketIO');
+require('./socketUtils/socketIOEvents');
 
 connectToDB('users',()=>{
     console.log('connected');

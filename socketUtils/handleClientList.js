@@ -27,6 +27,8 @@ const insertActiveClient = newClient => {
     console.log(`New client inserted: ${newClient.socketId}`);
 }
 
+
+
 module.exports = {
 
     updateActiveClientInfo: (client, data) => {
@@ -37,7 +39,6 @@ module.exports = {
         }
         const { foundIndex } = searchActiveClientByCustomId(newClient);
         if(foundIndex !== null) {
-            // console.log('foundIndex',foundIndex);
             updateActiveClient(foundIndex, newClient) 
         }
         else {
@@ -53,9 +54,11 @@ module.exports = {
         console.log(clientsList);
     },
 
+    searchActiveClientByCustomId,
+
     findSocketId: () => {},
 
-    getAllClientList: () => {
+    getActiveClientList: () => {
         return clientsList;
     }
 }
