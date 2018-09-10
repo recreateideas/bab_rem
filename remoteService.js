@@ -10,20 +10,16 @@ require('dotenv').config();
 
 require('./socketUtils/socketIOEvents');
 
-connectToDB('users',()=>{
+connectToDB('users',()=>{ //rename to KingLouie
     console.log('connected');
 });
 
-
 const port = process.env.REMOTE_PORT || 8001;
-
-
 
 const app_remote = express();
 
 app_remote.use(bodyParser.json());
 app_remote.use(bodyParser.urlencoded({extended:true}));
-
 
 require('./routes')(app_remote);
 
