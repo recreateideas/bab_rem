@@ -4,11 +4,11 @@ const express =require('express');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 
-const { connectToDB }= require('./controllers/mongoUtil');
+const { connectToDB }= require('./utils/mongoUtils');
 
 require('dotenv').config();
 
-require('./socketUtils/socketIOEvents');
+require('./utils/socketUtils/socketIOEvents');
 
 connectToDB('users',()=>{ //rename to KingLouie
     console.log('connected');

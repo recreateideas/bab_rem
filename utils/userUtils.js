@@ -1,5 +1,5 @@
 const parser = require('mongodb-query-parser');
-const mongoUtil = require('./mongoUtil');
+const { getDB } = require('./mongoUtils');
 const ObjectID = require('mongodb').ObjectID;
 
 module.exports = {
@@ -7,7 +7,7 @@ module.exports = {
     loginUser: (req, res) => {
         try {
             console.log('loggin in user...');
-            const db = mongoUtil.getDB();
+            const db = getDB();
             /************** emptyDB(db); ************/
             db.collection('users').find(req.body.details).toArray((err, result) => {
                 if (err) responseData = { userInserted: false, Error: `ERRL:10. This error occurred during login: ${err}` }
@@ -36,7 +36,7 @@ module.exports = {
     registerUser: (req, res) => {
         try {
             console.log('registering user...');
-            const db = mongoUtil.getDB();
+            const db = getDB();
             // console.log(req.body.details);
             db.collection('users').find(req.body.details).toArray((err, result) => {
                 // console.log(result);
@@ -74,7 +74,7 @@ module.exports = {
 
     updateUser: async (req, res) => {
         try {
-            const db = mongoUtil.getDB();
+            const db = getDB();
             const details = parser(JSON.stringify(req.body.data));
             console.log('Updating User data...');
             console.log(req.body.user);
@@ -102,10 +102,10 @@ module.exports = {
 
     findUsers: async (req, res) => {
         const type = req.params.type;
-        const db = mongoUtil.getDB();
+        const db = getDB();
         switch (type) {
             case 'all':
-        db.collection('users').find({}).toArray((err, result) => {
+                db.collection('users').find({}).toArray((err, result) => {
                     if (err) res.json({ Error: `${err}. This occurred while getting the list of all users` })
                     else res.json({ users: formatResults(result) })
                 });
@@ -121,8 +121,8 @@ module.exports = {
 
 const formatResults = results => {
     array = [];
-    results.forEach((result,index) => {
-        array[index]={
+    results.forEach((result, index) => {
+        array[index] = {
             nickname: result.nickname,
             email: result.email,
             customId: result._id,

@@ -5,7 +5,7 @@
 
 
 module.exports = (app) =>{
-    const users = require('./controllers/userUtils');
+    const users = require('./utils/userUtils');
 
 
     // app.get('/mongo', query.findAll);

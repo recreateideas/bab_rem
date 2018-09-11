@@ -2,7 +2,7 @@
 
 require('dotenv').config();
 const { updateActiveClientInfo, removeActiveClientFromList, getActiveClientList } = require('./handleClientList');
-const { sendMessageToUser,otherUserIsTyping } = require('./messageCenter');
+const { handleMessage,otherUserIsTyping } = require('./messageCenter');
 
 const io = require('socket.io')();
 
@@ -25,11 +25,11 @@ io.on('connection', (client) => {
         // io.emit('otherUserIsTyping',{nickname});
         // otherUserIsTyping({customId,nickname});
         console.log(data);
-        sendMessageToUser(io, 'otherUserIsTyping', data);
+        handleMessage(io, 'otherUserIsTyping', data);
     });
 
     client.on('sendMessageToClient', data =>{
-        sendMessageToUser(io, 'incomingMessage', data);
+        handleMessage(io, 'incomingMessage', data);
     });
 
     client.on('disconnect', () => {
