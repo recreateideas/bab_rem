@@ -80,7 +80,6 @@ module.exports = {
             console.log(req.body.user);
             // db.collection('users').find(req.body.user.email).toArray((err, result) => {console.log(result);});
             const action = await db.collection('users').updateOne({ email: req.body.user.email }, { $set: details });
-            // console.log(action.result);
             if (action.result.ok === 1 && action.result.nModified > 0) {
                 res.json({ userUpdates: true });
             } else {

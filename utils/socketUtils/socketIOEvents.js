@@ -24,7 +24,7 @@ io.on('connection', (client) => {
         // console.log(`${nickname} is typing....`);
         // io.emit('otherUserIsTyping',{nickname});
         // otherUserIsTyping({customId,nickname});
-        console.log(data);
+        console.log(`${data.nickname} is typing...`);
         handleMessage(io, 'otherUserIsTyping', data);
     });
 
