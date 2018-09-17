@@ -15,19 +15,13 @@ const formatMessageToSchema = (data) => {
 const insertMessage = async (collection, message) => {
     try {
         let responseData;
-        const db = getDB();
-        await db.collection(collection).insertOne(message, (err, result) => {
-            const response = result.toJSON();
-            if (err) responseData = { messageInserted: false }
-            else if (response.ok === 1) {
-                responseData = Object.assign(message, { messageInserted: true })
+        await getDB().collection(collection).insertOne(message).then(result => {
+            if (result.insertedCount > 0 && result.insertedId) {
+                responseData = result.ops[0];
             }
-            else if (response.ok !== 1) responseData = { messageInserted: false }
-            // console.log(responseData);
+            else if (result.insertedCount === 0 || !result.insertedId) responseData = { messageInserted: false }
             return responseData;
         });
-        console.log(responseData);
-        // console.log(mess);
         return responseData;
     } catch (err) {
         console.log(`${err}. This error occurred while insertin message in ${collection} collection`);
@@ -36,34 +30,50 @@ const insertMessage = async (collection, message) => {
 
 const saveMessage = async (collection, data) => {
     const message = formatMessageToSchema(data);
-    let savedMessage = await insertMessage(collection, message);
-    // const db = getDB();
-    // db.collection(collection).find({}).toArray((err, result) => {console.log(result);});
-    console.log('mess ---> ',savedMessage);
+    let respone = await insertMessage(collection, message);
+    if (respone._id) {
+        console.log(`Message successfully Inserted into ${collection}!`);
+    }
+    // getDB().collection(collection).deleteMany({});
+    // getDB().collection(collection).find({}).toArray((err, result) => { console.log(result) });
+    return respone;
 }
 
-    module.exports = {
+sendSentMessageBackToSender = (io,data)=>{
+    const sender = { customId:  data.senderId}
+    const { foundClient } = searchActiveClientByCustomId(sender); 
+    io.sockets.sockets[foundClient.socketId].emit('messageSent', data);
+}
 
-        handleMessage: (io, event, data) => {
-            const testUser = { customId: '5b8a62dc439959128c516f00' };
-            const { foundClient } = searchActiveClientByCustomId(testUser); //change here to userTo when live
-            switch (event) {
-                case 'otherUserIsTyping':
-                    if (foundClient) {
-                        io.sockets.sockets[foundClient.socketId].emit(event, data);
-                    }
-                    break;
-                case 'incomingMessage':
-                    saveMessage('messageBank', data); // Save message in `messages` collection
-                    if (foundClient) {
-                        io.sockets.sockets[foundClient.socketId].emit(event, data);
-                    } else {
-                        saveMessage('waitingRoom', data);  // Save message in `waitingRoom` collection
-                        // Send notification
-                    }
-                    break;
-                default:
-                    return;
+module.exports = {
+
+    handleMessage: async (io, event, data) => {
+        let { foundClient } = searchActiveClientByCustomId(data.message.userTo); //change here to 'data' when live
+        const response = await saveMessage('messageBank', data);
+        sendSentMessageBackToSender(io,response);
+        if (foundClient) {
+            io.sockets.sockets[foundClient.socketId].emit(event, response);
+        } else {
+            saveMessage('waitingRoom', data);
+            // Send notification
+        }
+    },
+
+    handleUserTyping: (io, event, data)  => {
+        if(data.receiver){
+            const { foundClient } = searchActiveClientByCustomId(data.receiver);
+            if (foundClient) {
+                io.sockets.sockets[foundClient.socketId].emit(event, data);
             }
         }
+    },
+
+    emitWaitingRoomMessages: (io, thisUser) => {
+        getDB().collection('waitingRoom').find({ receiverId: thisUser.customId }).toArray((err, result) => {
+            if (result && result.length > 0) {
+                const { foundClient } = searchActiveClientByCustomId(thisUser); //change here to userTo when live
+                io.sockets.sockets[foundClient.socketId].emit('incomingMessage', result);
+            }
+        });
     }
+}

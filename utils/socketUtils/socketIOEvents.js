@@ -2,17 +2,18 @@
 
 require('dotenv').config();
 const { updateActiveClientInfo, removeActiveClientFromList, getActiveClientList } = require('./handleClientList');
-const { handleMessage,otherUserIsTyping } = require('./messageCenter');
+const { handleMessage, handleUserTyping,emitWaitingRoomMessages, otherUserIsTyping } = require('./messageCenter');
 
 const io = require('socket.io')();
 
 io.on('connection', (client) => {
     console.log('a user connected');
     emitAllUsers();
-    console.log(io.clients);
-    client.on('updateClientInfo', data => {
+    // console.log(io.clients)
+    client.on('updateClientInfo', async data => {
         console.log(data);
         updateActiveClientInfo(client, data);
+        emitWaitingRoomMessages(io, data);
         emitAllUsers();
     });
 
@@ -20,15 +21,12 @@ io.on('connection', (client) => {
         emitAllUsers();
     });
 
-    client.on('thisUserIsTyping', data =>{
-        // console.log(`${nickname} is typing....`);
-        // io.emit('otherUserIsTyping',{nickname});
-        // otherUserIsTyping({customId,nickname});
-        console.log(`${data.nickname} is typing...`);
-        handleMessage(io, 'otherUserIsTyping', data);
+    client.on('thisUserIsTyping', ({sender,receiver}) => {
+        console.log(`${sender.nickname} is typing...`);
+        handleUserTyping(io, 'otherUserIsTyping', {sender,receiver});
     });
 
-    client.on('sendMessageToClient', data =>{
+    client.on('sendMessageToClient', data => {
         handleMessage(io, 'incomingMessage', data);
     });
 
@@ -43,7 +41,7 @@ io.on('connection', (client) => {
 
 const emitAllUsers = () => {
     const list = getActiveClientList();
-    io.emit('receiveActiveUsers',list);
+    io.emit('receiveActiveUsers', list);
 };
 
 const socket_port = process.env.SOCKET_PORT || 8011;
