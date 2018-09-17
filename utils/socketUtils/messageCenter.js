@@ -68,11 +68,14 @@ module.exports = {
         }
     },
 
-    emitWaitingRoomMessages: (io, thisUser) => {
-        getDB().collection('waitingRoom').find({ receiverId: thisUser.customId }).toArray((err, result) => {
+    emitWaitingRoomMessages: async (io, thisUser) => {
+        await getDB().collection('waitingRoom').find({ receiverId: thisUser.customId }).toArray(async (err, result) => {
             if (result && result.length > 0) {
                 const { foundClient } = searchActiveClientByCustomId(thisUser); //change here to userTo when live
                 io.sockets.sockets[foundClient.socketId].emit('incomingMessage', result);
+                await getDB().collection('waitingRoom').deleteMany({ receiverId: thisUser.customId }, async (err,result) => {
+                    console.log(`deleted ${result.deletedCount} messages from waitingRoom`);
+                });
             }
         });
     }
