@@ -6,7 +6,7 @@
 
 module.exports = (app) =>{
     const users = require('./utils/userUtils');
-
+    const {findMessages} = require('./utils/messageUtils');
 
     // app.get('/mongo', query.findAll);
 
@@ -17,5 +17,7 @@ module.exports = (app) =>{
     app.post('/users/register', /*queryValidator,*/ users.registerUser);
 
     app.get('/users/find/:type', users.findUsers);
+
+    app.post('/messages/find/', findMessages);
     //add more!.. like delete('/mongo/:id',query.delete); 
 };

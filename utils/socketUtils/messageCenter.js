@@ -2,13 +2,23 @@ const { searchActiveClientByCustomId } = require('./handleClientList');
 const { getDB } = require('../mongoUtils');
 const ObjectID = require('mongodb').ObjectID;
 
+const formatDate = (date) => {
+    return [date.getMonth() + 1,
+    date.getDate(),
+    date.getFullYear()].join('/') + ' ' +
+        [date.getHours(),
+        date.getMinutes(),
+        date.getSeconds()].join(':');
+}
+
 const formatMessageToSchema = (data) => {
     return {
         _id: new ObjectID(),
         senderId: data.senderId,
         receiverId: data.message.userTo.customId,
-        dateSent: new Date(),
-        content: data.message.content
+        dateSent: formatDate(new Date()),
+        dateSentTimestamp: +new Date(),
+        content: data.message.content,
     };
 }
 
@@ -39,9 +49,9 @@ const saveMessage = async (collection, data) => {
     return respone;
 }
 
-sendSentMessageBackToSender = (io,data)=>{
-    const sender = { customId:  data.senderId}
-    const { foundClient } = searchActiveClientByCustomId(sender); 
+sendSentMessageBackToSender = (io, data) => {
+    const sender = { customId: data.senderId }
+    const { foundClient } = searchActiveClientByCustomId(sender);
     io.sockets.sockets[foundClient.socketId].emit('messageSent', data);
 }
 
@@ -50,7 +60,7 @@ module.exports = {
     handleMessage: async (io, event, data) => {
         let { foundClient } = searchActiveClientByCustomId(data.message.userTo); //change here to 'data' when live
         const response = await saveMessage('messageBank', data);
-        sendSentMessageBackToSender(io,response);
+        sendSentMessageBackToSender(io, response);
         if (foundClient) {
             io.sockets.sockets[foundClient.socketId].emit(event, response);
         } else {
@@ -59,8 +69,8 @@ module.exports = {
         }
     },
 
-    handleUserTyping: (io, event, data)  => {
-        if(data.receiver){
+    handleUserTyping: (io, event, data) => {
+        if (data.receiver) {
             const { foundClient } = searchActiveClientByCustomId(data.receiver);
             if (foundClient) {
                 io.sockets.sockets[foundClient.socketId].emit(event, data);
@@ -73,7 +83,7 @@ module.exports = {
             if (result && result.length > 0) {
                 const { foundClient } = searchActiveClientByCustomId(thisUser); //change here to userTo when live
                 io.sockets.sockets[foundClient.socketId].emit('incomingMessage', result);
-                await getDB().collection('waitingRoom').deleteMany({ receiverId: thisUser.customId }, async (err,result) => {
+                await getDB().collection('waitingRoom').deleteMany({ receiverId: thisUser.customId }, async (err, result) => {
                     console.log(`deleted ${result.deletedCount} messages from waitingRoom`);
                 });
             }
