@@ -2,7 +2,7 @@
 
 require('dotenv').config();
 const { updateActiveClientInfo, removeActiveClientFromList, getActiveClientList } = require('./handleClientList');
-const { handleMessage, handleUserTyping,emitWaitingRoomMessages, otherUserIsTyping } = require('./messageCenter');
+const { handleMessage, handleUserTyping,emitWaitingRoomMessages } = require('./messageCenter');
 
 const io = require('socket.io')();
 

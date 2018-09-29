@@ -19,6 +19,7 @@ const formatMessageToSchema = (data) => {
         dateSent: formatDate(new Date()),
         dateSentTimestamp: +new Date(),
         content: data.message.content,
+        attachment: data.message.attachment,
     };
 }
 
