@@ -12,6 +12,7 @@ const formatDate = (date) => {
 }
 
 const formatMessageToSchema = (data) => {
+    console.log(data);
     return {
         _id: new ObjectID(),
         senderId: data.senderId,
@@ -35,7 +36,7 @@ const insertMessage = async (collection, message) => {
         });
         return responseData;
     } catch (err) {
-        console.log(`${err}. This error occurred while insertin message in ${collection} collection`);
+        console.log(`LOG::: ${new Date()} -> ${err}. This error occurred while insertin message in ${collection} collection`);
     }
 }
 
@@ -43,7 +44,7 @@ const saveMessage = async (collection, data) => {
     const message = formatMessageToSchema(data);
     let respone = await insertMessage(collection, message);
     if (respone._id) {
-        console.log(`Message successfully Inserted into ${collection}!`);
+        console.log(`LOG::: ${new Date()} -> Message successfully Inserted into ${collection}!`);
     }
     // getDB().collection(collection).deleteMany({});
     // getDB().collection(collection).find({}).toArray((err, result) => { console.log(result) });
@@ -53,7 +54,9 @@ const saveMessage = async (collection, data) => {
 sendSentMessageBackToSender = (io, data) => {
     const sender = { customId: data.senderId }
     const { foundClient } = searchActiveClientByCustomId(sender);
-    io.sockets.sockets[foundClient.socketId].emit('messageSent', data);
+    if(foundClient){
+        io.sockets.sockets[foundClient.socketId].emit('messageSent', data);
+    }
 }
 
 module.exports = {
@@ -84,9 +87,11 @@ module.exports = {
             if (result && result.length > 0) {
                 const { foundClient } = searchActiveClientByCustomId(thisUser); //change here to userTo when live
                 io.sockets.sockets[foundClient.socketId].emit('incomingMessage', result);
+                console.log(`LOG::: ${new Date()} -> ${result.length} messages sent to ${thisUser.nickname}`);
                 await getDB().collection('waitingRoom').deleteMany({ receiverId: thisUser.customId }, async (err, result) => {
-                    console.log(`deleted ${result.deletedCount} messages from waitingRoom`);
+                    console.log(`LOG::: ${new Date()} -> deleted ${result.deletedCount} messages from waitingRoom`);
                 });
+               
             }
         });
     }
