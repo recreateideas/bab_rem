@@ -114,9 +114,51 @@ module.exports = {
                 break;
 
         }
+    },
+
+    searchActiveUsersByCustomId: async newClient => {
+        try{
+            let activeUser = await getDB().collection('activeUsers').findOne({customId: newClient.customId});
+            // console.log('activeUsersList: ',activeUsersList);
+            return activeUser;
+        }catch(err){
+            console.log(`${err}. This occurred in searchActiveUsersByCustomId`);
+        }
+    },
+
+
+    setUserActiveStatus: async(newClient,status)=>{
+        let result;
+        try{
+            switch(status){
+                case 'active':
+                    result = await getDB().collection('activeUsers').insertOne({
+                        customId:newClient.customId,
+                        socketId:newClient.socketId,
+                        nickname:newClient.nickname
+                    })// callback
+                    break;
+                case 'inactive':
+                result = await getDB().collection('activeUsers').deleteOne({ customId:newClient.customId})
+                      // callback
+                    break;
+                default: break;
+            }
+        }catch(err){
+            console.log(`${err}. This occurred in setUserActiveStatus`);
+        }
+    },
+
+    updateActiveUser: async newClient => {
+        try{
+            console.log('newClient: ',newClient);
+        }catch(err){
+            console.log(`${err}. This occurred in updateActiveUser`);
+        }
     }
 
 }
+
 
 const formatResults = results => {
     array = [];

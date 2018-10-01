@@ -1,15 +1,19 @@
+const {searchActiveUsersByCustomId, setUserActiveStatus, updateActiveUser} = require('../userUtils');
 let clientsList = [];
+let thisUser = {};
 
-const searchActiveClientByCustomId = newClient => {
+const searchActiveClientByCustomId = async newClient => {
     try{
         let found = null, foundIndex = null;
+        let activeUser = await searchActiveUsersByCustomId(newClient); //<--------- DB !!
+        console.log('activeUser: ',activeUser); //<--------- DB !!
         clientsList.forEach((client, index) => {
             if (client.customId === newClient.customId) {
                 found = client;
                 foundIndex = index;
-                // console.log('foundIndex_top',foundIndex);
             }
         });
+        // return {foundClient: activeUser};
         return {
             foundClient: found,
             foundIndex
@@ -23,11 +27,14 @@ const searchActiveClientByCustomId = newClient => {
 const updateActiveClient = (index, newClient) => {
     clientsList[index].socketId = newClient.socketId;
     clientsList[index].nickname = newClient.nickname;
+    updateActiveUser(newClient);
+    console.log('newClient: ',newClient);
     console.log(`Client updated: ${newClient.customId}, ${clientsList[index].socketId}`);
     return clientsList[index];
 }
 
 const insertActiveClient = newClient => {
+    setUserActiveStatus(newClient,'active'); //<--------- DB !!
     clientsList.push(newClient);
     console.log(`New client inserted: ${newClient.socketId}`);
 }
@@ -44,7 +51,8 @@ module.exports = {
                 nickname: data.nickname
             }
             const { foundIndex } = searchActiveClientByCustomId(newClient);
-            if(foundIndex !== null) {
+            console.log(foundIndex);
+            if(foundIndex !== null && foundIndex !== undefined) {
                 updateActiveClient(foundIndex, newClient) 
             }
             else {
@@ -66,9 +74,18 @@ module.exports = {
 
     searchActiveClientByCustomId,
 
-    findSocketId: () => {},
+    // findSocketId: () => {},
 
     getActiveClientList: () => {
         return clientsList;
+    },
+
+    getThisUser:()=>{
+        return thisUser;
+    },
+
+    setThisUser:(newUser)=>{
+        thisUser = Object.assign({},newUser);
+        return;
     }
 }

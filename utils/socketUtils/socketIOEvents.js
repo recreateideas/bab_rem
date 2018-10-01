@@ -32,6 +32,7 @@ io.on('connection', (client) => {
 
     client.on('disconnect', () => {
         console.log('disconnect');
+        io.emit('shouldReconnect');
         removeActiveClientFromList(client);
         client.disconnect(true);
         emitAllUsers();
