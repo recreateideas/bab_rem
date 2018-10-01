@@ -51,9 +51,9 @@ const saveMessage = async (collection, data) => {
     return respone;
 }
 
-sendSentMessageBackToSender = (io, data) => {
+sendSentMessageBackToSender = async (io, data) => {
     const sender = { customId: data.senderId }
-    const { foundClient } = searchActiveClientByCustomId(sender);
+    const { foundClient } = await searchActiveClientByCustomId(sender);
     if(foundClient){
         io.sockets.sockets[foundClient.socketId].emit('messageSent', data);
     }
@@ -62,20 +62,20 @@ sendSentMessageBackToSender = (io, data) => {
 module.exports = {
 
     handleMessage: async (io, event, data) => {
-        let { foundClient } = searchActiveClientByCustomId(data.message.userTo); //change here to 'data' when live
+        let { foundClient } = await searchActiveClientByCustomId(data.message.userTo); //change here to 'data' when live
         const response = await saveMessage('messageBank', data);
-        sendSentMessageBackToSender(io, response);
+        await sendSentMessageBackToSender(io, response);
         if (foundClient) {
             io.sockets.sockets[foundClient.socketId].emit(event, response);
         } else {
-            saveMessage('waitingRoom', data);
+            await saveMessage('waitingRoom', data);
             // Send notification
         }
     },
 
-    handleUserTyping: (io, event, data) => {
+    handleUserTyping: async (io, event, data) => {
         if (data.receiver) {
-            const { foundClient } = searchActiveClientByCustomId(data.receiver);
+            const { foundClient } = await searchActiveClientByCustomId(data.receiver);
             if (foundClient) {
                 io.sockets.sockets[foundClient.socketId].emit(event, data);
             }
@@ -85,7 +85,7 @@ module.exports = {
     emitWaitingRoomMessages: async (io, thisUser) => {
         await getDB().collection('waitingRoom').find({ receiverId: thisUser.customId }).toArray(async (err, result) => {
             if (result && result.length > 0) {
-                const { foundClient } = searchActiveClientByCustomId(thisUser); //change here to userTo when live
+                const { foundClient } = await searchActiveClientByCustomId(thisUser); //change here to userTo when live
                 io.sockets.sockets[foundClient.socketId].emit('incomingMessage', result);
                 console.log(`LOG::: ${new Date()} -> ${result.length} messages sent to ${thisUser.nickname}`);
                 await getDB().collection('waitingRoom').deleteMany({ receiverId: thisUser.customId }, async (err, result) => {

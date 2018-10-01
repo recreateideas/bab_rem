@@ -1,41 +1,26 @@
-const {searchActiveUsersByCustomId, setUserActiveStatus, updateActiveUser} = require('../userUtils');
+const {searchActiveUsersByCustomId, setUserActiveStatus, updateActiveUser, getAllActiveUsers} = require('../userUtils');
 let clientsList = [];
 let thisUser = {};
 
 const searchActiveClientByCustomId = async newClient => {
     try{
-        let found = null, foundIndex = null;
         let activeUser = await searchActiveUsersByCustomId(newClient); //<--------- DB !!
-        console.log('activeUser: ',activeUser); //<--------- DB !!
-        clientsList.forEach((client, index) => {
-            if (client.customId === newClient.customId) {
-                found = client;
-                foundIndex = index;
-            }
-        });
-        // return {foundClient: activeUser};
-        return {
-            foundClient: found,
-            foundIndex
-        }
+        // console.log('activeUser: ',activeUser); //<--------- DB !!
+        return {foundClient: activeUser};
     }catch(err){
         console.log(`Error: ${err}. This error happened while searching for Active clients by custom Id.`);
     }
   
 }
 
-const updateActiveClient = (index, newClient) => {
-    clientsList[index].socketId = newClient.socketId;
-    clientsList[index].nickname = newClient.nickname;
-    updateActiveUser(newClient);
-    console.log('newClient: ',newClient);
+const updateActiveClient = (newClient) => {
+    updateActiveUser(newClient);  //<--------- DB !!
     console.log(`Client updated: ${newClient.customId}, ${clientsList[index].socketId}`);
-    return clientsList[index];
+    return newClient;
 }
 
 const insertActiveClient = newClient => {
     setUserActiveStatus(newClient,'active'); //<--------- DB !!
-    clientsList.push(newClient);
     console.log(`New client inserted: ${newClient.socketId}`);
 }
 
@@ -50,10 +35,9 @@ module.exports = {
                 socketId: client.id,
                 nickname: data.nickname
             }
-            const { foundIndex } = searchActiveClientByCustomId(newClient);
-            console.log(foundIndex);
-            if(foundIndex !== null && foundIndex !== undefined) {
-                updateActiveClient(foundIndex, newClient) 
+            const { foundClient } = searchActiveClientByCustomId(newClient);
+            if(foundClient) {
+                updateActiveClient(newClient) 
             }
             else {
                 insertActiveClient(newClient);
@@ -64,19 +48,17 @@ module.exports = {
         }
     },
 
-    removeActiveClientFromList: client => {
+    removeActiveClientFromList: async client => {
         console.log(`Client.id ${client.id} has disconnected`);
-        const { foundIndex } = searchActiveClientByCustomId(client);
-        clientsList.splice(foundIndex, 1);
+        clientsList = await setUserActiveStatus(client,'inactive');
         console.log('Active Clients List: ');
         console.log(clientsList);
     },
 
     searchActiveClientByCustomId,
 
-    // findSocketId: () => {},
-
-    getActiveClientList: () => {
+    getActiveClientList: async () => {
+        clientsList = await getAllActiveUsers();
         return clientsList;
     },
 

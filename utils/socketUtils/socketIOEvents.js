@@ -6,42 +6,42 @@ const { handleMessage, handleUserTyping,emitWaitingRoomMessages } = require('./m
 
 const io = require('socket.io')();
 
-io.on('connection', (client) => {
+io.on('connection', async (client) => {
     console.log('a user connected');
-    emitAllUsers();
+    await emitAllUsers();
     // console.log(io.clients)
     client.on('updateClientInfo', async data => {
         console.log(data);
-        updateActiveClientInfo(client, data);
-        emitWaitingRoomMessages(io, data);
-        emitAllUsers();
+        await updateActiveClientInfo(client, data);
+        await emitWaitingRoomMessages(io, data);
+        await emitAllUsers();
     });
 
-    client.on('getActiveUsers', () => {
-        emitAllUsers();
+    client.on('getActiveUsers', async () => {
+        await emitAllUsers();
     });
 
-    client.on('thisUserIsTyping', ({sender,receiver}) => {
+    client.on('thisUserIsTyping', async ({sender,receiver}) => {
         console.log(`${sender.nickname} is typing...`);
-        handleUserTyping(io, 'otherUserIsTyping', {sender,receiver});
+        await handleUserTyping(io, 'otherUserIsTyping', {sender,receiver});
     });
 
-    client.on('sendMessageToClient', data => {
-        handleMessage(io, 'incomingMessage', data);
+    client.on('sendMessageToClient', async data => {
+        await handleMessage(io, 'incomingMessage', data);
     });
 
-    client.on('disconnect', () => {
+    client.on('disconnect', async () => {
         console.log('disconnect');
         io.emit('shouldReconnect');
-        removeActiveClientFromList(client);
+        await removeActiveClientFromList(client);
         client.disconnect(true);
-        emitAllUsers();
+        await emitAllUsers();
     });
 
 });
 
-const emitAllUsers = () => {
-    const list = getActiveClientList();
+const emitAllUsers = async () => {
+    const list = await getActiveClientList();
     io.emit('receiveActiveUsers', list);
 };
 

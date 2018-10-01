@@ -7,14 +7,13 @@ module.exports = {
     loginUser: (req, res) => {
         try {
             console.log('loggin in user...');
-            const db = getDB();
             /************** emptyDB(db); ************/
-            db.collection('users').find(req.body.details).toArray((err, result) => {
+            getDB().collection('users').find(req.body.details).toArray((err, result) => {
                 if (err) responseData = { userInserted: false, Error: `ERRL:10. This error occurred during login: ${err}` }
                 else if (result && result.length > 0) {
                     const response = removePasswordFromResponse(result);
                     // update lastLoggedInDateTime
-                    db.collection('users').updateOne(req.body.details, { $set: { lastLoggedInDateTime: new Date() } });
+                    getDB().collection('users').updateOne(req.body.details, { $set: { lastLoggedInDateTime: new Date() } });
                     responseData = { userFound: true, userDetails: response, }
                     // add user to online users
                 }
@@ -36,9 +35,8 @@ module.exports = {
     registerUser: (req, res) => {
         try {
             console.log('registering user...');
-            const db = getDB();
             // console.log(req.body.details);
-            db.collection('users').find(req.body.details).toArray((err, result) => {
+            getDB().collection('users').find(req.body.details).toArray((err, result) => {
                 // console.log(result);
                 let userDetails = Object.assign({}, req.body.details, {
                     _id: new ObjectID(),
@@ -48,7 +46,7 @@ module.exports = {
                 });
 
                 if (result && result.length === 0) {
-                    db.collection('users').insertOne(userDetails, (err, result) => {
+                    getDB().collection('users').insertOne(userDetails, (err, result) => {
                         const response = result.toJSON();
                         delete userDetails.password;
                         if (err) responseData = { userInserted: false }
@@ -59,7 +57,7 @@ module.exports = {
                         // add user to online users
                         res.json(responseData);
                     });
-                    db.listCollections().toArray((err, collections) => { console.log(collections); });
+                    getDB().listCollections().toArray((err, collections) => { console.log(collections); });
                 } else {
                     res.json({ Error: 'This user seems to be already registered.' });
                 }
@@ -74,12 +72,11 @@ module.exports = {
 
     updateUser: async (req, res) => {
         try {
-            const db = getDB();
             const details = parser(JSON.stringify(req.body.data));
             console.log('Updating User data...');
             console.log(req.body.user);
             // db.collection('users').find(req.body.user.email).toArray((err, result) => {console.log(result);});
-            const action = await db.collection('users').updateOne({ email: req.body.user.email }, { $set: details });
+            const action = await getDB().collection('users').updateOne({ email: req.body.user.email }, { $set: details });
             if (action.result.ok === 1 && action.result.nModified > 0) {
                 res.json({ userUpdates: true });
             } else {
@@ -101,10 +98,9 @@ module.exports = {
 
     findUsers: async (req, res) => {
         const type = req.params.type;
-        const db = getDB();
         switch (type) {
             case 'all':
-                db.collection('users').find({}).toArray((err, result) => {
+                getDB().collection('users').find({}).toArray((err, result) => {
                     if (err) res.json({ Error: `${err}. This occurred while getting the list of all users` })
                     else res.json({ users: formatResults(result) })
                 });
@@ -113,6 +109,16 @@ module.exports = {
                 res.json({ Error: `The user query is not of a correct type` })
                 break;
 
+        }
+    },
+
+    getAllActiveUsers: async () => {
+        try{
+            let allActiveUsers = await getDB().collection('activeUsers').find().toArray();
+            // console.log(allActiveUsers);
+            return allActiveUsers;
+        }catch(err){
+            console.log(`${err}. This occurred in getAllActiveUsers`);
         }
     },
 
@@ -132,18 +138,22 @@ module.exports = {
         try{
             switch(status){
                 case 'active':
+                    await getDB().collection('activeUsers').deleteMany({ customId:newClient.customId})
                     result = await getDB().collection('activeUsers').insertOne({
                         customId:newClient.customId,
                         socketId:newClient.socketId,
                         nickname:newClient.nickname
                     })// callback
+                    console.log(`Just inserted ${newClient.nickname} into active `);
                     break;
                 case 'inactive':
-                result = await getDB().collection('activeUsers').deleteOne({ customId:newClient.customId})
-                      // callback
+                    result = await getDB().collection('activeUsers').deleteMany({ socketId: newClient.id})
+                      console.log(`Just removed ${newClient.id} into active `);
                     break;
                 default: break;
             }
+           const clientsList = getDB().collection('activeUsers').find({}).toArray();
+           return clientsList;
         }catch(err){
             console.log(`${err}. This occurred in setUserActiveStatus`);
         }
@@ -152,6 +162,13 @@ module.exports = {
     updateActiveUser: async newClient => {
         try{
             console.log('newClient: ',newClient);
+            const result = await getDB().collection('activeUsers').updateOne(
+                { customId: newClient.customId, },
+                { $set:
+                    { socketId : newClient.socketId, nickname : newClient.nickname }
+                }
+             );
+             console.log('updateOne: ',result);
         }catch(err){
             console.log(`${err}. This occurred in updateActiveUser`);
         }
