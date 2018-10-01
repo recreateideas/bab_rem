@@ -20,7 +20,7 @@ module.exports = {
                     // add user to online users
                 }
                 else if (result && result.length === 0) {
-                    responseData = { messagesFound: false, Error: 'Messages not found' }
+                    responseData = { messagesFound: false,  messages: result, Error: 'Messages not found' }
                 } else {
                     responseData = { Error: `ERRL:16. Not an acceptable message query result` }
                 }
