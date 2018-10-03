@@ -19,9 +19,12 @@ const updateActiveClient = (newClient) => {
     return newClient;
 }
 
-const insertActiveClient = newClient => {
-    setUserActiveStatus(newClient,'active'); //<--------- DB !!
+const insertActiveClient = async newClient => {
+    clientsList = await setUserActiveStatus(newClient,'active'); //<--------- DB !!
     console.log(`New client inserted: ${newClient.socketId}`);
+    console.log('Active Clients List: ');
+    console.log(clientsList);
+
 }
 
 

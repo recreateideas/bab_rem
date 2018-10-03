@@ -21,9 +21,9 @@ io.on('connection', async (client) => {
         await emitAllUsers();
     });
 
-    client.on('thisUserIsTyping', async ({sender,receiver}) => {
-        console.log(`${sender.nickname} is typing...`);
-        await handleUserTyping(io, 'otherUserIsTyping', {sender,receiver});
+    client.on('thisUserIsTyping', async ({sender,receiver,activity}) => {
+        console.log(`${sender.nickname} has ${activity} typing...`);
+        await handleUserTyping(io, 'otherUserIsTyping', {sender,receiver,activity});
     });
 
     client.on('sendMessageToClient', async data => {
