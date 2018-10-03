@@ -51,9 +51,11 @@ const saveMessage = async (collection, data) => {
     return respone;
 }
 
-sendSentMessageBackToSender = async (io, data) => {
+const sendSentMessageBackToSender = async (io, data) => {
+    console.log('sending');
     const sender = { customId: data.senderId }
     const { foundClient } = await searchActiveClientByCustomId(sender);
+    console.log(foundClient);
     if(foundClient){
         io.sockets.sockets[foundClient.socketId].emit('messageSent', data);
     }
