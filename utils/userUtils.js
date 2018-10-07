@@ -148,7 +148,7 @@ module.exports = {
                     break;
                 case 'inactive':
                     result = await getDB().collection('activeUsers').deleteMany({ socketId: newClient.id})
-                      console.log(`Just removed ${newClient.id} into active `);
+                      console.log(`Removed ${newClient.id} into active `);
                     break;
                 default: break;
             }

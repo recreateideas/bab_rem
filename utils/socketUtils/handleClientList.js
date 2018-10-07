@@ -4,8 +4,9 @@ let thisUser = {};
 
 const searchActiveClientByCustomId = async newClient => {
     try{
+        console.log('newClient: ',newClient);
         let activeUser = await searchActiveUsersByCustomId(newClient); //<--------- DB !!
-        // console.log('activeUser: ',activeUser); //<--------- DB !!
+        console.log('activeUser: ',activeUser); //<--------- DB !!
         return {foundClient: activeUser};
     }catch(err){
         console.log(`Error: ${err}. This error happened while searching for Active clients by custom Id.`);
@@ -20,6 +21,7 @@ const updateActiveClient = (newClient) => {
 }
 
 const insertActiveClient = async newClient => {
+    console.log('newClient',newClient);
     clientsList = await setUserActiveStatus(newClient,'active'); //<--------- DB !!
     console.log(`New client inserted: ${newClient.socketId}`);
     console.log('Active Clients List: ');
