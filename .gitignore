@@ -1,6 +1,10 @@
 
 /node_modules
+/dist
 
 .env
+.gitignore
+.babelrc
+.eslintrc.json
 
 Icon?
