@@ -12,7 +12,7 @@ const formatDate = (date) => {
 }
 
 const formatMessageToSchema = (data) => {
-    console.log(data);
+    // console.log(data);
     return {
         _id: new ObjectID(),
         senderId: data.senderId,
@@ -55,9 +55,9 @@ const sendSentMessageBackToSender = async (io, data) => {
     try{
         const sender = { customId: data.senderId }
         console.log('sending back to sender ',sender);
-        console.log(data);
+        // console.log(data);
         const { foundClient } = await searchActiveClientByCustomId(sender);
-        console.log('found ->>',foundClient);
+        // console.log('found ->>',foundClient);
         if(foundClient){
             io.sockets.sockets[foundClient.socketId].emit('messageSent', data);
         }
