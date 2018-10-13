@@ -1,10 +1,12 @@
 "use strict";
 
-require('dotenv').config();
+const dotenv = require('dotenv')
+dotenv.config();
 const { updateActiveClientInfo, removeActiveClientFromList, getActiveClientList } = require('./handleClientList');
 const { handleMessage, handleUserTyping,emitWaitingRoomMessages } = require('./messageCenter');
 
-const io = require('socket.io')();
+let io = require('socket.io');
+io = io();
 
 io.on('connection', async (client) => {
     console.log('a user connected');

@@ -1,6 +1,7 @@
 "use strict";
 
-require('dotenv').config();
+var dotenv = require('dotenv');
+dotenv.config();
 
 var _require = require('./handleClientList'),
     updateActiveClientInfo = _require.updateActiveClientInfo,
@@ -12,7 +13,8 @@ var _require2 = require('./messageCenter'),
     handleUserTyping = _require2.handleUserTyping,
     emitWaitingRoomMessages = _require2.emitWaitingRoomMessages;
 
-var io = require('socket.io')();
+var io = require('socket.io');
+io = io();
 
 io.on('connection', async function (client) {
     console.log('a user connected');

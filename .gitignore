@@ -6,5 +6,6 @@
 .gitignore
 .babelrc
 .eslintrc.json
+webpack.config.js
 
 Icon?
