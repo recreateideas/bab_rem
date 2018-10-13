@@ -9,7 +9,7 @@
   "scripts": {
     "start": "concurrently \"nodemon remoteService.js\" \"mongod --dbpath ~/mongodb2 --port 27018\"",
     "test": "concurrently \"nodejs --exec babel-node remoteService.js\" \"mongod --dbpath ~/mongodb2 --port 27018\"",
-    "prod": "nodemon --exec babel-node remoteService.js",
+    "prod": "nodejs --exec babel-node remoteService.js",
     "build-js": "react-scripts build",
     "eject": "react-scripts eject"
   },
