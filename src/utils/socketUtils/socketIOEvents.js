@@ -3,8 +3,7 @@ dotenv.config();
 const { updateActiveClientInfo, removeActiveClientFromList, getActiveClientList } = require('./handleClientList');
 const { handleMessage, handleUserTyping,emitWaitingRoomMessages } = require('./messageCenter');
 
-let io = require('socket.io');
-io = io();
+let io = require('socket.io')();
 
 io.on('connection', async (client) => {
     console.log('a user connected');
