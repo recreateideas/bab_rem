@@ -10,7 +10,7 @@ module.exports = {
 
     connectToDB: (dbName,callback) => {
         try{
-            console.log('loggin in....');
+            console.log('connectToDB...');
             _dbName = dbName;
             _remoteMongoInstance = process.env.REMOTE_MONGO_INSTANCE;
             _hostName = process.env.REMOTE_HOST_NAME;
