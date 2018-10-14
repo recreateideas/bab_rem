@@ -6,10 +6,12 @@ let thisUser = {};
 
 const searchActiveClientByCustomId = async newClient => {
     try{
-        logger.info(`::[handleClientList]=> searchActiveClientByCustomId()=> newClient: ${newClient.customId}, nickname: ${newClient.nickname}`);
-        let activeUser = await searchActiveUsersByCustomId(newClient); //<--------- DB !!
-        logger.info(`::[handleClientList]=> searchActiveClientByCustomId()=> found active User: ${activeUser.customId}, nickname: ${activeUser.nickname}`,); //<--------- DB !!
-        return {foundClient: activeUser};
+        if(newClient && newClient.customId){
+            logger.info(`::[handleClientList]=> searchActiveClientByCustomId()=> newClient: ${newClient.customId}, nickname: ${newClient.nickname}`);
+            let activeUser = await searchActiveUsersByCustomId(newClient); //<--------- DB !!
+            logger.info(`::[handleClientList]=> searchActiveClientByCustomId()=> found active User: ${activeUser.customId}, nickname: ${activeUser.nickname}`,); //<--------- DB !!
+            return {foundClient: activeUser};
+        }
     }catch(err){
         logger.error(`::[handleClientList]=> searchActiveClientByCustomId() => ${err}`);
     }
@@ -18,9 +20,11 @@ const searchActiveClientByCustomId = async newClient => {
 
 const updateActiveClient = (newClient) => {
     try{
-        updateActiveUser(newClient);  //<--------- DB !!
-        logger.info(`::[handleClientList]=> updateActiveClient()=> Client updated: ${newClient.customId}, socketId: ${clientsList[index].socketId}`);
-        return newClient;
+        if(newClient && newClient.customId){
+            updateActiveUser(newClient);  //<--------- DB !!
+            logger.info(`::[handleClientList]=> updateActiveClient()=> Client updated: ${newClient.customId}, socketId: ${clientsList[index].socketId}`);
+            return newClient;
+        }
     }
     catch(err){
         logger.error(`::[handleClientList]=> updateActiveClient() => ${err}`);
@@ -29,9 +33,12 @@ const updateActiveClient = (newClient) => {
 
 const insertActiveClient = async newClient => {
     try{
-        clientsList = await setUserActiveStatus(newClient,'active'); //<--------- DB !!
-        logger.info(`::[handleClientList]=> insertActiveClient()=> New client inserted, socketId: ${newClient.socketId}`);
-        logger.info(`::[handleClientList]=> insertActiveClient()=> Active Clients List Length: ${clientsList && clientsList.length}`);
+        if(newClient){
+            clientsList = await setUserActiveStatus(newClient,'active'); //<--------- DB !!
+            logger.info(`::[handleClientList]=> insertActiveClient()=> New client inserted, socketId: ${newClient.socketId}`);
+            logger.info(`::[handleClientList]=> insertActiveClient()=> Active Clients List Length: ${clientsList && clientsList.length}`);
+    
+        }
     }
     catch(err){
         logger.error(`::[handleClientList]=> insertActiveClient()=> ${err}`);

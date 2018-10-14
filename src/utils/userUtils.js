@@ -10,7 +10,7 @@ module.exports = {
             let responseData;
             logger.info(`::[userUtils]=> loginUser()=> loggin in user...`);
             /************** emptyDB(db); ************/
-            await getDB().collection('users').find(req.body.details).toArray((err, result) => {
+            await getDB().collection('users').find(req.body.details).toArray(async (err, result) => {
                 if (err) responseData = { userInserted: false, Error: `ERRL:10. This error occurred during login: ${err}` }
                 else if (result && result.length > 0) {
                     logger.info(`::[userUtils]=> loginUser()=> user found, ${req.body.details.email}`);
@@ -44,7 +44,7 @@ module.exports = {
         try {
             let responseData;
             logger.info(`::[userUtils]=> registerUser()=> registering user...`);
-            await getDB().collection('users').find(req.body.details).toArray((err, result) => {
+            await getDB().collection('users').find(req.body.details).toArray(async (err, result) => {
                 // logger.info(result);
                 let userDetails = Object.assign({}, req.body.details, {
                     _id: new ObjectID(),
@@ -55,7 +55,7 @@ module.exports = {
 
                 if (result && result.length === 0) {
                     logger.info(`::[userUtils]=> registerUser()=> This user is not registered yet`);
-                    await getDB().collection('users').insertOne(userDetails, (err, result) => {
+                    await getDB().collection('users').insertOne(userDetails, async (err, result) => {
                         const response = result.toJSON();
                         delete userDetails.password;
                         if (err) {
