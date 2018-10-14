@@ -9,8 +9,7 @@
   "scripts": {
     "start": "concurrently \"nodemon src/remoteService.js\" \"mongod --dbpath ~/mongodb2 --port 27018\"",
     "test": "concurrently \"nodejs --exec babel-node src/remoteService.js\" \"mongod --dbpath ~/mongodb2 --port 27018\"",
-    "prod_test": "nodemon dist/remoteService.js",
-    "prod": "nodejs dist/remoteService.js",
+    "prod": "babel --presets es2015 src/ -d dist/ && nodejs dist/remoteService.js",
     "build": "babel --presets es2015 src/ -d dist/",
     "build-js": "react-scripts build",
     "eject": "react-scripts eject"
