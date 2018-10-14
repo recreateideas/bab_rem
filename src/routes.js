@@ -10,6 +10,8 @@ module.exports = (app) =>{
 
     // app.get('/mongo', query.findAll);
 
+    app.post('/',()=>{console.log('test connection')});
+
     app.post('/users/login', /*queryValidator,*/ users.loginUser);
 
     app.post('/users/update', /*queryValidator,*/ users.updateUser);
@@ -19,5 +21,6 @@ module.exports = (app) =>{
     app.get('/users/find/:type', users.findUsers);
 
     app.post('/messages/find/', findMessages);
+
     //add more!.. like delete('/mongo/:id',query.delete); 
 };

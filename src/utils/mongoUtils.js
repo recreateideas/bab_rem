@@ -51,7 +51,7 @@ const mongoConnect = (server,mongoUrl,callback) => {
     try {
         _mongoClient = MongoClient;
 
-        _mongoClient.connect(mongoUrl, (err, client) => {
+        _mongoClient.connect(mongoUrl,{ useNewUrlParser: true }, (err, client) => {
             if (client) {
                 _db = client.db(_dbName);
                 _mongoClient = client;

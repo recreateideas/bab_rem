@@ -10,6 +10,7 @@ module.exports = {
         console.log(req.body);
         try {
             console.log('searching messages...');
+            let responseData;
             const userId = req.body.userId;
             const db = getDB();
             db.collection('messageBank').find({$or: [{senderId:userId},{receiverId:userId}]}).toArray((err, result) => {

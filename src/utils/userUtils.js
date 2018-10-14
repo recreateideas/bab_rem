@@ -6,6 +6,7 @@ module.exports = {
 
     loginUser: (req, res) => {
         try {
+            let responseData;
             console.log('loggin in user...');
             /************** emptyDB(db); ************/
             getDB().collection('users').find(req.body.details).toArray((err, result) => {
@@ -34,6 +35,7 @@ module.exports = {
 
     registerUser: (req, res) => {
         try {
+            let responseData;
             console.log('registering user...');
             // console.log(req.body.details);
             getDB().collection('users').find(req.body.details).toArray((err, result) => {
@@ -178,7 +180,7 @@ module.exports = {
 
 
 const formatResults = results => {
-    array = [];
+    let array = [];
     results.forEach((result, index) => {
         array[index] = {
             nickname: result.nickname,
