@@ -9,8 +9,10 @@ const searchActiveClientByCustomId = async newClient => {
         if(newClient && newClient.customId){
             logger.info(`::[handleClientList]=> searchActiveClientByCustomId()=> newClient: ${newClient.customId}, nickname: ${newClient.nickname}`);
             let activeUser = await searchActiveUsersByCustomId(newClient); //<--------- DB !!
-            logger.info(`::[handleClientList]=> searchActiveClientByCustomId()=> found active User: ${activeUser.customId}, nickname: ${activeUser.nickname}`,); //<--------- DB !!
-            return {foundClient: activeUser};
+            if(activeUser){
+                logger.info(`::[handleClientList]=> searchActiveClientByCustomId()=> found active User: ${activeUser.customId}, nickname: ${activeUser.nickname}`,); //<--------- DB !!
+                return {foundClient: activeUser};
+            }
         }
     }catch(err){
         logger.error(`::[handleClientList]=> searchActiveClientByCustomId() => ${err}`);
@@ -37,7 +39,6 @@ const insertActiveClient = async newClient => {
             clientsList = await setUserActiveStatus(newClient,'active'); //<--------- DB !!
             logger.info(`::[handleClientList]=> insertActiveClient()=> New client inserted, socketId: ${newClient.socketId}`);
             logger.info(`::[handleClientList]=> insertActiveClient()=> Active Clients List Length: ${clientsList && clientsList.length}`);
-    
         }
     }
     catch(err){
