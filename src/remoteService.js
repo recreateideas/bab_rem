@@ -8,7 +8,7 @@ require('dotenv').config();
 
 require('./utils/socketUtils/socketIOEvents');
 
-connectToDB('users',()=>{ //rename to KingLouie
+connectToDB('king_louie',(data)=>{ //rename to KingLouie
     console.log('connected');
 });
 
