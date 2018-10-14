@@ -5,19 +5,19 @@ var logger = require('logger').createLogger('userUtils.log');
 
 module.exports = {
 
-    loginUser: (req, res) => {
+    loginUser: async (req, res) => {
         try {
             let responseData;
             logger.info(`::[userUtils]=> loginUser()=> loggin in user...`);
             /************** emptyDB(db); ************/
-            getDB().collection('users').find(req.body.details).toArray((err, result) => {
+            await getDB().collection('users').find(req.body.details).toArray((err, result) => {
                 if (err) responseData = { userInserted: false, Error: `ERRL:10. This error occurred during login: ${err}` }
                 else if (result && result.length > 0) {
                     logger.info(`::[userUtils]=> loginUser()=> user found, ${req.body.details.email}`);
                     const response = removePasswordFromResponse(result);
                     // update lastLoggedInDateTime
 
-                    getDB().collection('users').updateOne(req.body.details, { $set: { lastLoggedInDateTime: new Date() } });
+                    await getDB().collection('users').updateOne(req.body.details, { $set: { lastLoggedInDateTime: new Date() } });
                     logger.info(`::[userUtils]=> loginUser()=> updating lastLoggedInDateTime`);
                     responseData = { userFound: true, userDetails: response, }
                     // add user to online users
@@ -40,11 +40,11 @@ module.exports = {
         // res.json({findAll:true})
     },
 
-    registerUser: (req, res) => {
+    registerUser: async (req, res) => {
         try {
             let responseData;
             logger.info(`::[userUtils]=> registerUser()=> registering user...`);
-            getDB().collection('users').find(req.body.details).toArray((err, result) => {
+            await getDB().collection('users').find(req.body.details).toArray((err, result) => {
                 // logger.info(result);
                 let userDetails = Object.assign({}, req.body.details, {
                     _id: new ObjectID(),
@@ -55,7 +55,7 @@ module.exports = {
 
                 if (result && result.length === 0) {
                     logger.info(`::[userUtils]=> registerUser()=> This user is not registered yet`);
-                    getDB().collection('users').insertOne(userDetails, (err, result) => {
+                    await getDB().collection('users').insertOne(userDetails, (err, result) => {
                         const response = result.toJSON();
                         delete userDetails.password;
                         if (err) {
@@ -120,13 +120,13 @@ module.exports = {
             logger.info(`::[userUtils]=> findUsers()=> looking for type:${type} users`);
             switch (type) {
                 case 'all':
-                    getDB().collection('users').find({}).toArray((err, result) => {
+                    await getDB().collection('users').find({}).toArray((err, result) => {
                         if (err){
                             logger.error(`::[userUtils]=> findUsers()=> inside find({}) => ${err}`);
                             res.json({ Error: `${err}. This occurred while getting the list of all users` })
                         }
                         else {
-                            logger.info(`::[userUtils]=> findUsers()=> found ${result && result.length ? result.length : '0'} users`);
+                            logger.info(`::[userUtils]=> findUsers()=> found ${result && result.length ? result.length : '0'} users in collection 'users'`);
                             res.json({ users: formatResults(result) })
                         }
                     });
@@ -145,7 +145,7 @@ module.exports = {
     getAllActiveUsers: async () => {
         try{
             let allActiveUsers = await getDB().collection('activeUsers').find().toArray();
-            logger.info(`::[userUtils]=> getAllActiveUsers()=> found ${allActiveUsers && allActiveUsers.length ? allActiveUsers.length : '0'} active users`);
+            logger.info(`::[userUtils]=> getAllActiveUsers()=> found ${allActiveUsers && allActiveUsers.length ? allActiveUsers.length : '0'} active users in collection activeUsers`);
             return allActiveUsers;
         }catch(err){
             logger.error(`::[userUtils]=> getAllActiveUsers()=> ${err}`);
@@ -155,7 +155,7 @@ module.exports = {
     searchActiveUsersByCustomId: async newClient => {
         try{
             let activeUser = await getDB().collection('activeUsers').findOne({customId: newClient.customId});
-            logger.info(`::[userUtils]=> searchActiveUsersByCustomId()=> found ${activeUser && activeUser.length ? activeUser.length : '0' } active users by customId`);
+            logger.info(`::[userUtils]=> searchActiveUsersByCustomId()=> found ${activeUser && activeUser.length ? activeUser.length : '0' } active users by customId ${newClient.customId}`);
             return activeUser;
         }catch(err){
             logger.error(`::[userUtils]=> searchActiveUsersByCustomId()=> ${err}`);
@@ -169,7 +169,7 @@ module.exports = {
         try{
             switch(status){
                 case 'active':
-                    logger.info(`::[userUtils]=> setUserActiveStatus()=> clearing all ${newClient.customId} users`);
+                    logger.info(`::[userUtils]=> setUserActiveStatus()=> clearing all users with customId: ${newClient.customId}`);
                     await getDB().collection('activeUsers').deleteMany({ customId:newClient.customId})
                     result = await getDB().collection('activeUsers').insertOne({
                         customId:newClient.customId,
@@ -178,19 +178,19 @@ module.exports = {
                     });
                     // logger.info(`::[userUtils]=> setUserActiveStatus()=> inserted ${result.insertedId} into activeUsers`);
                     if(result.insertedId) {
-                        logger.info(`::[userUtils]=> setUserActiveStatus()=> Just inserted ${newClient.nickname} into activeUsers.`);
+                        logger.info(`::[userUtils]=> setUserActiveStatus()=> Just inserted ${newClient.nickname} with id: ${result.insertedId} into activeUsers.`);
                     } else {
                         logger.error(`::[userUtils]=> setUserActiveStatus()=> Something went wrong while inserting ${newClient.nickname} into activeUsers.`); 
                     }
                     break;
                 case 'inactive':
                     result = await getDB().collection('activeUsers').deleteMany({ socketId: newClient.id})
-                      logger.info(`::[userUtils]=> setUserActiveStatus()=> Removed ${newClient.id} into active `);
+                      logger.info(`::[userUtils]=> setUserActiveStatus()=> Removed ${newClient.id} from activeUsers `);
                     break;
                 default: break;
             }
-           const clientsList = getDB().collection('activeUsers').find({}).toArray();
-           logger.info(`::[userUtils]=> setUserActiveStatus()=> There are ${clientsList && clientsList.length ? clientsList.length : '0' } active users`);
+           const clientsList = await getDB().collection('activeUsers').find({}).toArray();
+           logger.info(`::[userUtils]=> setUserActiveStatus()=> There are ${clientsList && clientsList.length ? clientsList.length : '0' } active users in collection activeUsers`);
            return clientsList;
         }catch(err){
             logger.error(`::[userUtils]=> setUserActiveStatus()=> ${err}`); 
