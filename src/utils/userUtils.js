@@ -169,7 +169,7 @@ module.exports = {
         try{
             switch(status){
                 case 'active':
-                    logger.info(`::[userUtils]=> searchActiveUsersByCustomId()=> clearing all ${newClient.customId} users`);
+                    logger.info(`::[userUtils]=> setUserActiveStatus()=> clearing all ${newClient.customId} users`);
                     await getDB().collection('activeUsers').deleteMany({ customId:newClient.customId})
                     result = await getDB().collection('activeUsers').insertOne({
                         customId:newClient.customId,
