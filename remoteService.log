@@ -871,3 +871,26 @@ info [Sun Oct 14 2018 16:19:51 GMT+1100 (AEDT)]  { MongoError: Authentication fa
   name: 'MongoError',
   [Symbol(mongoErrorContextSymbol)]: {} }
 info [Sun Oct 14 2018 16:19:51 GMT+1100 (AEDT)]  ::[remoteService]=> connectToDB()=>  Connected to king_louie
+
+
+
+info [Sun Oct 14 2018 16:23:16 GMT+1100 (AEDT)]  ::[remoteService]=> #--- Server Listening on http://localhost port: 8001
+info [Sun Oct 14 2018 16:23:16 GMT+1100 (AEDT)]  ::[mongoUtils]=> connectToDB() => connecting to db with URL: mongodb://userAdmin:baboon_User_Admin@localhost:27018/king_louie
+info [Sun Oct 14 2018 16:23:16 GMT+1100 (AEDT)]  { MongoError: Authentication failed.
+    at /Users/claudio/baboon_remoteServer/node_modules/mongodb-core/lib/connection/pool.js:581:63
+    at authenticateStragglers (/Users/claudio/baboon_remoteServer/node_modules/mongodb-core/lib/connection/pool.js:504:16)
+    at Connection.messageHandler (/Users/claudio/baboon_remoteServer/node_modules/mongodb-core/lib/connection/pool.js:540:5)
+    at emitMessageHandler (/Users/claudio/baboon_remoteServer/node_modules/mongodb-core/lib/connection/connection.js:310:10)
+    at Socket.<anonymous> (/Users/claudio/baboon_remoteServer/node_modules/mongodb-core/lib/connection/connection.js:453:17)
+    at emitOne (events.js:116:13)
+    at Socket.emit (events.js:211:7)
+    at addChunk (_stream_readable.js:263:12)
+    at readableAddChunk (_stream_readable.js:250:11)
+    at Socket.Readable.push (_stream_readable.js:208:10)
+  ok: 0,
+  errmsg: 'Authentication failed.',
+  code: 18,
+  codeName: 'AuthenticationFailed',
+  name: 'MongoError',
+  [Symbol(mongoErrorContextSymbol)]: {} }
+info [Sun Oct 14 2018 16:23:16 GMT+1100 (AEDT)]  ::[remoteService]=> connectToDB()=>  Connected to king_louie

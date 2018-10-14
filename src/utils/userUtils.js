@@ -190,7 +190,7 @@ module.exports = {
                 default: break;
             }
            const clientsList = getDB().collection('activeUsers').find({}).toArray();
-           logger.info(`::[userUtils]=> setUserActiveStatus()=> There are ${clientsList.length} active users`);
+           logger.info(`::[userUtils]=> setUserActiveStatus()=> There are ${clientsList && clientsList.length ? clientsList.length : '0' } active users`);
            return clientsList;
         }catch(err){
             logger.error(`::[userUtils]=> setUserActiveStatus()=> ${err}`); 
