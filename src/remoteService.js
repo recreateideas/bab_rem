@@ -10,7 +10,6 @@ require('dotenv').config();
 require('./utils/socketUtils/socketIOEvents');
 
 connectToDB('king_louie',(data)=>{ //rename to KingLouie
-    console.log('connected');
     logger.info(`::[remoteService]=> connectToDB()=>  Connected to king_louie`,);
 });
 

@@ -126,7 +126,7 @@ module.exports = {
                             res.json({ Error: `${err}. This occurred while getting the list of all users` })
                         }
                         else {
-                            logger.info(`::[userUtils]=> findUsers()=> found ${result && result.length} users`);
+                            logger.info(`::[userUtils]=> findUsers()=> found ${result && result.length ? result.length : '0'} users`);
                             res.json({ users: formatResults(result) })
                         }
                     });
@@ -145,7 +145,7 @@ module.exports = {
     getAllActiveUsers: async () => {
         try{
             let allActiveUsers = await getDB().collection('activeUsers').find().toArray();
-            logger.info(`::[userUtils]=> getAllActiveUsers()=> found ${allActiveUsers && allActiveUsers.length} active users`);
+            logger.info(`::[userUtils]=> getAllActiveUsers()=> found ${allActiveUsers && allActiveUsers.length ? allActiveUsers.length : '0'} active users`);
             return allActiveUsers;
         }catch(err){
             logger.error(`::[userUtils]=> getAllActiveUsers()=> ${err}`);
@@ -155,7 +155,7 @@ module.exports = {
     searchActiveUsersByCustomId: async newClient => {
         try{
             let activeUser = await getDB().collection('activeUsers').findOne({customId: newClient.customId});
-            logger.info(`::[userUtils]=> searchActiveUsersByCustomId()=> found ${activeUser && activeUser.length} active users by customId`);
+            logger.info(`::[userUtils]=> searchActiveUsersByCustomId()=> found ${activeUser && activeUser.length ? activeUser.length : '0' } active users by customId`);
             return activeUser;
         }catch(err){
             logger.error(`::[userUtils]=> searchActiveUsersByCustomId()=> ${err}`);
@@ -190,7 +190,7 @@ module.exports = {
                 default: break;
             }
            const clientsList = getDB().collection('activeUsers').find({}).toArray();
-           logger.info(`::[userUtils]=> setUserActiveStatus()=> There are ${clientsList && clientsList.length} active users`);
+           logger.info(`::[userUtils]=> setUserActiveStatus()=> There are ${clientsList.length} active users`);
            return clientsList;
         }catch(err){
             logger.error(`::[userUtils]=> setUserActiveStatus()=> ${err}`); 
