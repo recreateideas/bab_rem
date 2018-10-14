@@ -10,7 +10,7 @@ module.exports = (app) =>{
 
     // app.get('/mongo', query.findAll);
 
-    app.post('/',()=>{console.log('test connection')});
+    app.get('/',(req, res)=>{res.end('Baboon is coming!\n');});
 
     app.post('/users/login', /*queryValidator,*/ users.loginUser);
 
