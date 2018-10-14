@@ -21,7 +21,7 @@ const formatDate = (date) => {
 
 const formatMessageToSchema = (data) => {
     try{
-        logger.info(`::[messageCenter]=> v()`);
+        logger.info(`::[messageCenter]=> formatMessageToSchema()`);
         return {
             _id: new ObjectID(),
             senderId: data.senderId,
@@ -108,10 +108,10 @@ module.exports = {
         try{
             if (data.receiver) {
                 const { foundClient } = await searchActiveClientByCustomId(data.receiver);
-                logger.info(`::[messageCenter]=> handleUserTyping()=> found receiver ${foundClient.customId}`);
                 if (foundClient) {
-                    logger.info(`::[messageCenter]=> handleUserTyping()=> sending userTyping to ${foundClient.customId}`);
+                    logger.info(`::[messageCenter]=> handleUserTyping()=> found receiver ${foundClient.customId}`);
                     io.sockets.sockets[foundClient.socketId].emit(event, data);
+                    logger.info(`::[messageCenter]=> handleUserTyping()=> sent userTyping to ${foundClient.customId}`);
                 }
             }
         }catch(err){
