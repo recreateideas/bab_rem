@@ -1,7 +1,7 @@
 const { searchActiveClientByCustomId } = require('./handleClientList');
 const { getDB } = require('../mongoUtils');
 const ObjectID = require('mongodb').ObjectID;
-var logger = require('logger').createLogger('remoteService.log');
+var logger = require('logger').createLogger('messages.log');
 
 const formatDate = (date) => {
     try{
