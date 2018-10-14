@@ -4,26 +4,37 @@ const ObjectID = require('mongodb').ObjectID;
 var logger = require('logger').createLogger('remoteService.log');
 
 const formatDate = (date) => {
-    logger.info(`::formatDate()`);
-    return [date.getMonth() + 1,
-    date.getDate(),
-    date.getFullYear()].join('/') + ' ' +
-        [date.getHours(),
-        date.getMinutes(),
-        date.getSeconds()].join(':');
+    try{
+        logger.info(`::[messageCenter]=> formatDate()`);
+        return [date.getMonth() + 1,
+        date.getDate(),
+        date.getFullYear()].join('/') + ' ' +
+            [date.getHours(),
+            date.getMinutes(),
+            date.getSeconds()].join(':');
+    }
+    catch(err){
+        logger.error(`::[messageCenter]=> formatDate()=> ${err}.`);
+    }
+
 }
 
 const formatMessageToSchema = (data) => {
-    logger.info(`::formatMessageToSchema()`);
-    return {
-        _id: new ObjectID(),
-        senderId: data.senderId,
-        receiverId: data.message.receiver.customId,
-        dateSent: formatDate(new Date()),
-        dateSentTimestamp: +new Date(),
-        content: data.message.content,
-        attachment: data.message.attachment,
-    };
+    try{
+        logger.info(`::[messageCenter]=> v()`);
+        return {
+            _id: new ObjectID(),
+            senderId: data.senderId,
+            receiverId: data.message.receiver.customId,
+            dateSent: formatDate(new Date()),
+            dateSentTimestamp: +new Date(),
+            content: data.message.content,
+            attachment: data.message.attachment,
+        };
+    }catch(err){
+        logger.error(`::[messageCenter]=> formatMessageToSchema()=> ${err}.`);
+    }
+
 }
 
 const insertMessage = async (collection, message) => {
@@ -32,17 +43,17 @@ const insertMessage = async (collection, message) => {
         await getDB().collection(collection).insertOne(message).then(result => {
             if (result.insertedCount > 0 && result.insertedId) {
                 responseData = result.ops[0];
-                logger.info(`::insertMessage()=> Message ${result.insertedId} inserted in ${collection}`);
+                logger.info(`::[messageCenter]=> insertMessage()=> Message ${result.insertedId} inserted in ${collection}`);
             }
             else if (result.insertedCount === 0 || !result.insertedId){
                 responseData = { messageInserted: false }
-                logger.info(`::insertMessage()=> Message ${message} NOT inserted in ${collection}`);
+                logger.info(`::[messageCenter]=> insertMessage()=> Message ${message} NOT inserted in ${collection}`);
             }
             return responseData;
         });
         return responseData;
     } catch (err) {
-        logger.error(`::formatDate()=> ${err}. This error occurred while insertin message in ${collection} collection`);
+        logger.error(`::[messageCenter]=> formatDate()=> ${err}. This error occurred while insertin message in ${collection} collection`);
     }
 }
 
@@ -51,11 +62,11 @@ const saveMessage = async (collection, data) => {
         const message = formatMessageToSchema(data);
         let respone = await insertMessage(collection, message);
         if (respone._id) {
-            logger.info(`::saveMessage()=> Message successfully Inserted into ${collection}!`);
+            logger.info(`::[messageCenter]=> saveMessage()=> Message successfully Inserted into ${collection}!`);
         }
         return respone;
     }catch(err){
-        logger.error(`::saveMessage()=> ${err}`); 
+        logger.error(`::[messageCenter]=> saveMessage()=> ${err}`); 
     }
    
 }
@@ -63,13 +74,13 @@ const saveMessage = async (collection, data) => {
 const sendSentMessageBackToSender = async (io, data) => {
     try{
         const sender = { customId: data.senderId }
-        logger.info('::sendSentMessageBackToSender()=> sending message back to sender ',sender);
+        logger.info('::[messageCenter]=> sendSentMessageBackToSender()=> sending message back to sender ',sender);
         const { foundClient } = await searchActiveClientByCustomId(sender);
         if(foundClient){
             io.sockets.sockets[foundClient.socketId].emit('messageSent', data);
         }
     } catch(err){
-        logger.error(`::sendSentMessageBackToSender()=> ${err}`);
+        logger.error(`::[messageCenter]=> sendSentMessageBackToSender()=> ${err}`);
     }
 
 }
@@ -97,14 +108,14 @@ module.exports = {
         try{
             if (data.receiver) {
                 const { foundClient } = await searchActiveClientByCustomId(data.receiver);
-                logger.info(`::handleUserTyping()=> found receiver ${foundClient.customId}`);
+                logger.info(`::[messageCenter]=> handleUserTyping()=> found receiver ${foundClient.customId}`);
                 if (foundClient) {
-                    logger.info(`::handleUserTyping()=> sending userTyping to ${foundClient.customId}`);
+                    logger.info(`::[messageCenter]=> handleUserTyping()=> sending userTyping to ${foundClient.customId}`);
                     io.sockets.sockets[foundClient.socketId].emit(event, data);
                 }
             }
         }catch(err){
-            logger.error(`::handleUserTyping()=> ${err}`);
+            logger.error(`::[messageCenter]=> handleUserTyping()=> ${err}`);
         }
 
     },
@@ -115,15 +126,15 @@ module.exports = {
                 if (result && result.length > 0) {
                     const { foundClient } = await searchActiveClientByCustomId(thisUser); //change here to receiver when live
                     io.sockets.sockets[foundClient.socketId].emit('incomingMessage', result);
-                    logger.info(`::emitWaitingRoomMessages()=> ${result.length} messages sent to ${thisUser.nickname}`);
+                    logger.info(`::[messageCenter]=> emitWaitingRoomMessages()=> ${result.length} messages sent to ${thisUser.nickname}`);
                     await getDB().collection('waitingRoom').deleteMany({ receiverId: thisUser.customId }, async (err, result) => {
-                        logger.info(`::emitWaitingRoomMessages()=> deleted ${result.deletedCount} messages from waitingRoom`);
+                        logger.info(`::[messageCenter]=> emitWaitingRoomMessages()=> deleted ${result.deletedCount} messages from waitingRoom`);
                     });
                    
                 }
             });
         }catch(err){
-            logger.error(`::emitWaitingRoomMessages()=> ${err}`);
+            logger.error(`::[messageCenter]=> emitWaitingRoomMessages()=> ${err}`);
         }
     }
 }

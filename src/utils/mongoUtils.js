@@ -3,6 +3,7 @@ const mongodb = require('mongodb'),
     Server = mongodb.Server,
     fs = require('fs'),
     exec = require("child_process").exec;
+var logger = require('logger').createLogger('remoteService.log');
 
 let _db, _dbName, _mongoClient, _mongoPort, _hostName, _adminUser, _adminUserPwd, _remoteMongoInstance;
 
@@ -10,7 +11,6 @@ module.exports = {
 
     connectToDB: (dbName,callback) => {
         try{
-            console.log('connectToDB...');
             _dbName = dbName;
             _remoteMongoInstance = process.env.REMOTE_MONGO_INSTANCE;
             _hostName = process.env.REMOTE_HOST_NAME;
@@ -20,12 +20,13 @@ module.exports = {
             
             const remoteMongoInstance = process.env.REMOTE_MONGO_INSTANCE;
             const mongoUrl = `${_remoteMongoInstance}://${_adminUser}:${_adminUserPwd}@${_hostName}:${_mongoPort}/${_dbName}`;
+            logger.info(`::[mongoUtils]=> connectToDB() => connecting to db with URL: ${mongoUrl}`);
             const options={};
             const server = new Server(_hostName, _mongoPort, options)
             mongoConnect(server,mongoUrl,callback);
 
         } catch(err){
-            console.log(err);
+            logger.info(err);
         }
     },
 
@@ -50,20 +51,21 @@ module.exports = {
 const mongoConnect = (server,mongoUrl,callback) => {
     try {
         _mongoClient = MongoClient;
-
         _mongoClient.connect(mongoUrl,{ useNewUrlParser: true }, (err, client) => {
             if (client) {
+                logger.info(`::[mongoUtils]=> mongoConnect() => built client with URL: ${mongoUrl}`);
                 _db = client.db(_dbName);
+                logger.info(`::[mongoUtils]=> mongoConnect() => db: ${_dbName}`);
                 _mongoClient = client;
-                // console.log(_db);
-                console.log(`Connected to db...${mongoUrl}`);
+                // logger.info(_db);
+                logger.info(`::[mongoUtils]=> mongoConnect() => Connected to db with URL: ${mongoUrl}`);
                 return callback(client);
             }
-            if (err) console.log(err);
+            if (err) logger.info(err);
             return callback(err);
         });
     }
     catch (err) {
-        console.log(err);
+        logger.error(`::[mongoUtils]=> mongoConnect() => ${err}`);
     }
 };

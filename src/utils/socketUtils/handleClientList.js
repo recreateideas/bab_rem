@@ -6,12 +6,12 @@ let thisUser = {};
 
 const searchActiveClientByCustomId = async newClient => {
     try{
-        logger.info(`::searchActiveClientByCustomId()=> newClient: ${newClient.customId}, nickname: ${newClient.nickname}`);
+        logger.info(`::[handleClientList]=> searchActiveClientByCustomId()=> newClient: ${newClient.customId}, nickname: ${newClient.nickname}`);
         let activeUser = await searchActiveUsersByCustomId(newClient); //<--------- DB !!
-        logger.info(`::searchActiveClientByCustomId()=> found active User: ${activeUser.customId}, nickname: ${activeUser.nickname}`,); //<--------- DB !!
+        logger.info(`::[handleClientList]=> searchActiveClientByCustomId()=> found active User: ${activeUser.customId}, nickname: ${activeUser.nickname}`,); //<--------- DB !!
         return {foundClient: activeUser};
     }catch(err){
-        logger.error(`::searchActiveClientByCustomId() => ${err}`);
+        logger.error(`::[handleClientList]=> searchActiveClientByCustomId() => ${err}`);
     }
   
 }
@@ -19,22 +19,22 @@ const searchActiveClientByCustomId = async newClient => {
 const updateActiveClient = (newClient) => {
     try{
         updateActiveUser(newClient);  //<--------- DB !!
-        logger.info(`::updateActiveClient()=> Client updated: ${newClient.customId}, socketId: ${clientsList[index].socketId}`);
+        logger.info(`::[handleClientList]=> updateActiveClient()=> Client updated: ${newClient.customId}, socketId: ${clientsList[index].socketId}`);
         return newClient;
     }
     catch(err){
-        logger.error(`::updateActiveClient() => ${err}`);
+        logger.error(`::[handleClientList]=> updateActiveClient() => ${err}`);
     }
 }
 
 const insertActiveClient = async newClient => {
     try{
         clientsList = await setUserActiveStatus(newClient,'active'); //<--------- DB !!
-        logger.info(`::insertActiveClient()=> New client inserted, socketId: ${newClient.socketId}`);
-        logger.info(`::insertActiveClient()=> Active Clients List Length: ${clientsList && clientsList.length}`);
+        logger.info(`::[handleClientList]=> insertActiveClient()=> New client inserted, socketId: ${newClient.socketId}`);
+        logger.info(`::[handleClientList]=> insertActiveClient()=> Active Clients List Length: ${clientsList && clientsList.length}`);
     }
     catch(err){
-        logger.error(`::insertActiveClient()=> ${err}`);
+        logger.error(`::[handleClientList]=> insertActiveClient()=> ${err}`);
     }
 
 }
@@ -52,22 +52,28 @@ module.exports = {
             }
             const { foundClient } = searchActiveClientByCustomId(newClient);
             if(foundClient) {
+                logger.info(`::[handleClientList]=> updateActiveClientInfo()=> Updating ${data.customId} info`);
                 updateActiveClient(newClient) 
             }
             else {
+                logger.info(`::[handleClientList]=> updateActiveClientInfo()=> Inserting ${data.customId} info`);
                 insertActiveClient(newClient);
             }
         }
         catch(err){
-            logger.info(`Error: ${err}. This error happened while updating client infos.`);
+            logger.error(`::[handleClientList]=> updateActiveClientInfo()=> ${err}.`);
         }
     },
 
     removeActiveClientFromList: async client => {
-        logger.info(`Client.id ${client.id} has disconnected`);
-        clientsList = await setUserActiveStatus(client,'inactive');
-        logger.info('Active Clients List: ');
-        logger.info(clientsList);
+        try{
+            logger.info(`::[handleClientList]=> removeActiveClientFromList()=> Client.id ${client.id} has disconnected`);
+            clientsList = await setUserActiveStatus(client,'inactive');
+            logger.info(`::[handleClientList]=> removeActiveClientFromList()=> Active Clients List Length: ${clientsList && clientsList.length}`);
+    
+        } catch(err){
+            logger.error(`::[handleClientList]=> removeActiveClientFromList()=> ${err}.`);
+        }
     },
 
     searchActiveClientByCustomId,
