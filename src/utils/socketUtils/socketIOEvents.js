@@ -33,7 +33,7 @@ io.on('connection', async (client) => {
         await handleUserTyping(io, 'otherUserIsTyping', {sender,receiver,activity});
     });
 
-    client.on('v', async data => {
+    client.on('sendMessageToClient', async data => {
         logger.info(`[socketIOEvents]=> ::sendMessageToClient()`);
         await handleMessage(io, 'incomingMessage', data);
     });
