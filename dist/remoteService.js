@@ -2,6 +2,7 @@
 
 var express = require('express');
 var bodyParser = require('body-parser');
+var logger = require('logger').createLogger('remoteService.log');
 // const { errors } = require('celebrate');
 
 var _require = require('./utils/mongoUtils'),
@@ -11,9 +12,9 @@ require('dotenv').config();
 
 require('./utils/socketUtils/socketIOEvents');
 
-connectToDB('users', function () {
+connectToDB('king_louie', function (data) {
     //rename to KingLouie
-    console.log('connected');
+    logger.info('::[remoteService]=> connectToDB()=>  Connected to king_louie');
 });
 
 var port = process.env.REMOTE_PORT || 8001;
@@ -28,4 +29,5 @@ require('./routes')(app_remote);
 // app_remote.use(errors());
 app_remote.listen(port);
 
+logger.info('::[remoteService]=> #--- Server Listening on ' + process.env.REMOTE_HOST + ' port: ' + port); //<--------- DB !!
 console.log('#-- Server Listening on ' + process.env.REMOTE_HOST + ' port: ' + port);

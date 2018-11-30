@@ -13,21 +13,29 @@ var _require2 = require('./messageCenter'),
     handleUserTyping = _require2.handleUserTyping,
     emitWaitingRoomMessages = _require2.emitWaitingRoomMessages;
 
-var io = require('socket.io');
-io = io();
+var logger = require('logger').createLogger('socketEvents.log');
+
+var io = require('socket.io')();
 
 io.on('connection', async function (client) {
-    console.log('a user connected');
+
+    logger.info('[socketIOEvents]=> ::connection()=> a user connected');
+    io.emit('shouldReconnect');
     await emitAllUsers();
-    // console.log(io.clients)
+    // logger.info(io.clients)
     client.on('updateClientInfo', async function (data) {
-        console.log(data);
-        await updateActiveClientInfo(client, data);
-        await emitWaitingRoomMessages(io, data);
-        await emitAllUsers();
+        try {
+            logger.info('[socketIOEvents]=> ::updateClientInfo()');
+            await updateActiveClientInfo(client, data);
+            await emitWaitingRoomMessages(io, data);
+            await emitAllUsers();
+        } catch (err) {
+            logger.error('::[handleClientList]=> updateClientInfo()=> ' + err + '.');
+        }
     });
 
     client.on('getActiveUsers', async function () {
+        logger.info('[socketIOEvents]=> ::getActiveUsers()');
         await emitAllUsers();
     });
 
@@ -36,29 +44,35 @@ io.on('connection', async function (client) {
             receiver = _ref.receiver,
             activity = _ref.activity;
 
-        console.log(sender.nickname + ' has ' + activity + ' typing...');
+        logger.info('[socketIOEvents]=> ::thisUserIsTyping()=> ' + sender.nickname + ' has ' + activity + ' typing...');
         await handleUserTyping(io, 'otherUserIsTyping', { sender: sender, receiver: receiver, activity: activity });
     });
 
     client.on('sendMessageToClient', async function (data) {
+        logger.info('[socketIOEvents]=> ::sendMessageToClient()');
         await handleMessage(io, 'incomingMessage', data);
     });
 
     client.on('disconnect', async function () {
-        console.log('disconnect');
-        io.emit('shouldReconnect');
-        await removeActiveClientFromList(client);
-        client.disconnect(true);
-        await emitAllUsers();
+        try {
+            logger.info('[socketIOEvents]=> ::disconnect() => client disconnected');
+            io.emit('shouldReconnect');
+            await removeActiveClientFromList(client);
+            // client.disconnect(true);
+            await emitAllUsers();
+        } catch (err) {
+            logger.error('::[handleClientList]=> disconnect()=> ' + err + '.');
+        }
     });
 });
 
 var emitAllUsers = async function emitAllUsers() {
     var list = await getActiveClientList();
+    logger.info('[socketIOEvents]=> ::emitAllUsers()');
     io.emit('receiveActiveUsers', list);
 };
 
 var socket_port = process.env.SOCKET_PORT || 8011;
 
 io.listen(socket_port);
-console.log('#-- Socket listening on ' + process.env.REMOTE_HOST + ' port: ' + socket_port);
+logger.info('#---- Socket connected and listening on ' + process.env.REMOTE_HOST + ' port: ' + socket_port);

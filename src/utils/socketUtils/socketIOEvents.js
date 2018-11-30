@@ -9,7 +9,7 @@ let io = require('socket.io')();
 io.on('connection', async (client) => {
 
     logger.info(`[socketIOEvents]=> ::connection()=> a user connected`);
-    io.emit('shouldReconnect');
+    // io.emit('shouldReconnect');
     await emitAllUsers();
     // logger.info(io.clients)
     client.on('updateClientInfo', async data => {
@@ -43,6 +43,7 @@ io.on('connection', async (client) => {
         try{
             logger.info(`[socketIOEvents]=> ::disconnect() => client disconnected`);
             io.emit('shouldReconnect');
+            logger.info(`[socketIOEvents]=> ::disconnect() => ::EMIT shouldReconnect`);
             await removeActiveClientFromList(client);
             // client.disconnect(true);
             await emitAllUsers();

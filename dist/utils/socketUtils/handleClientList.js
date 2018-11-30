@@ -6,32 +6,42 @@ var _require = require('../userUtils'),
     updateActiveUser = _require.updateActiveUser,
     getAllActiveUsers = _require.getAllActiveUsers;
 
+var logger = require('logger').createLogger('remoteService.log');
+
 var clientsList = [];
 var thisUser = {};
 
 var searchActiveClientByCustomId = async function searchActiveClientByCustomId(newClient) {
     try {
-        console.log('newClient: ', newClient);
+        logger.info('::[handleClientList]=> searchActiveClientByCustomId()=> newClient: ' + newClient.customId + ', nickname: ' + newClient.nickname);
         var activeUser = await searchActiveUsersByCustomId(newClient); //<--------- DB !!
-        console.log('activeUser: ', activeUser); //<--------- DB !!
+        if (activeUser) {
+            logger.info('::[handleClientList]=> searchActiveClientByCustomId()=> found active User: ' + activeUser.customId + ', nickname: ' + activeUser.nickname); //<--------- DB !!
+        }
         return { foundClient: activeUser };
     } catch (err) {
-        console.log('Error: ' + err + '. This error happened while searching for Active clients by custom Id.');
+        logger.error('::[handleClientList]=> searchActiveClientByCustomId() => ' + err);
     }
 };
 
 var updateActiveClient = function updateActiveClient(newClient) {
-    updateActiveUser(newClient); //<--------- DB !!
-    console.log('Client updated: ' + newClient.customId + ', ' + clientsList[index].socketId);
-    return newClient;
+    try {
+        updateActiveUser(newClient); //<--------- DB !!
+        logger.info('::[handleClientList]=> updateActiveClient()=> Client updated: ' + newClient.customId + ', socketId: ' + clientsList[index].socketId);
+        return newClient;
+    } catch (err) {
+        logger.error('::[handleClientList]=> updateActiveClient() => ' + err);
+    }
 };
 
 var insertActiveClient = async function insertActiveClient(newClient) {
-    console.log('newClient', newClient);
-    clientsList = await setUserActiveStatus(newClient, 'active'); //<--------- DB !!
-    console.log('New client inserted: ' + newClient.socketId);
-    console.log('Active Clients List: ');
-    console.log(clientsList);
+    try {
+        clientsList = await setUserActiveStatus(newClient, 'active'); //<--------- DB !!
+        logger.info('::[handleClientList]=> insertActiveClient()=> New client inserted, socketId: ' + newClient.socketId);
+        logger.info('::[handleClientList]=> insertActiveClient()=> Active Clients List Length: ' + (clientsList && clientsList.length));
+    } catch (err) {
+        logger.error('::[handleClientList]=> insertActiveClient()=> ' + err);
+    }
 };
 
 module.exports = {
@@ -48,20 +58,25 @@ module.exports = {
                 foundClient = _searchActiveClientBy.foundClient;
 
             if (foundClient) {
+                logger.info('::[handleClientList]=> updateActiveClientInfo()=> Updating ' + data.customId + ' info');
                 updateActiveClient(newClient);
             } else {
+                logger.info('::[handleClientList]=> updateActiveClientInfo()=> Inserting ' + data.customId + ' info');
                 insertActiveClient(newClient);
             }
         } catch (err) {
-            console.log('Error: ' + err + '. This error happened while updating client infos.');
+            logger.error('::[handleClientList]=> updateActiveClientInfo()=> ' + err + '.');
         }
     },
 
     removeActiveClientFromList: async function removeActiveClientFromList(client) {
-        console.log('Client.id ' + client.id + ' has disconnected');
-        clientsList = await setUserActiveStatus(client, 'inactive');
-        console.log('Active Clients List: ');
-        console.log(clientsList);
+        try {
+            logger.info('::[handleClientList]=> removeActiveClientFromList()=> Client.id ' + client.id + ' has disconnected');
+            clientsList = await setUserActiveStatus(client, 'inactive');
+            logger.info('::[handleClientList]=> removeActiveClientFromList()=> Active Clients List Length: ' + (clientsList && clientsList.length));
+        } catch (err) {
+            logger.error('::[handleClientList]=> removeActiveClientFromList()=> ' + err + '.');
+        }
     },
 
     searchActiveClientByCustomId: searchActiveClientByCustomId,
