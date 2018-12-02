@@ -45,21 +45,21 @@ const insertActiveClient = async newClient => {
 
 module.exports = {
 
-    updateActiveClientInfo: (client, data) => {
+    updateActiveClientInfo: async (client, data) => {
         try {
             let newClient = {
                 customId: data.customId,
                 socketId: client.id,
                 nickname: data.nickname
             }
-            const { foundClient } = searchActiveClientByCustomId(newClient);
+            const { foundClient } = await searchActiveClientByCustomId(newClient);
             if (foundClient) {
                 logger.info(`::[handleClientList]=> updateActiveClientInfo()=> Updating ${data.customId} info`);
-                updateActiveClient(newClient)
+                await updateActiveClient(newClient)
             }
             else {
                 logger.info(`::[handleClientList]=> updateActiveClientInfo()=> Inserting ${data.customId} info`);
-                insertActiveClient(newClient);
+                await insertActiveClient(newClient);
             }
         }
         catch (err) {
